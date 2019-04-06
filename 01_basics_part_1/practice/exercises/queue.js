@@ -6,9 +6,9 @@
 export default class Queue {
   /**
    * в качестве "памяти" используем массив
+   
    */
-
-  constructor() {
+   constructor() {
     this.list = [];
     /**
      * У любой очереди должна быть длинна!
@@ -21,7 +21,9 @@ export default class Queue {
    */
 
   enqueue(value) {
-    // your code is here
+    this.list.push(value);
+    this.length += 1;
+    return this.length;
   }
 
   /**
@@ -30,7 +32,8 @@ export default class Queue {
    */
 
   dequeue() {
-    // your code is here
+    this.length -= 1;
+    return this.list.shift();
   }
 
   /**
@@ -39,6 +42,6 @@ export default class Queue {
    */
 
   peek() {
-    // your code is here
+    return this.list[0];
   }
 }
