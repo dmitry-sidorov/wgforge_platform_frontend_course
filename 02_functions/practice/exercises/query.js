@@ -81,6 +81,115 @@
  * 3. Реализовать функциональность создания INSERT и DELETE запросов. Написать для них тесты.
  */
 
-export default function query() {
-  // ¯\_(ツ)_/¯
+export default 
+function query() {
+
+  function Query() {
+    const queryText = [];
+    let whereUsed = false;
+    const isString = str => typeof str === 'string';
+
+    const makeWhereObject = (that) => {
+      return {
+        equals: function (value) {
+          queryText.push('=', value);
+          console.log('this in equals => ', this);
+          console.log('queryText in equals => ', queryText);
+          console.log('that in equals => ', that);
+          return that;
+        },
+        in: function (values) {
+          queryText.push('IN', `(${values.split(', ')})`);
+          return this;
+        },
+        gt: function (value) {
+          queryText.push('>', value);
+          return this;
+        },
+        gte: function (value) {
+          queryText.push('>=', value);
+          return this;
+        },
+        lt: function (value) {
+          queryText.push('<', value);
+          return this;
+        },
+        lte: function (value) {
+          queryText.push('<=', value);
+          return this;
+        },
+        between: function (minValue, maxValue) {
+          queryText.push('BETWEEN', minValue, 'AND', maxValue);
+          return this;
+        },
+        isNull: function () {
+          queryText.push('IS NULL');
+          return this;
+        },
+        not: function (value) {
+          if (queryText[queryText.length - 1] !== 'NOT') {
+            queryText.push('NOT');
+          }
+          return this;
+        }
+      }
+    }
+
+  this.toString = () => {
+    // let queryString = this.queryText.join(' ');
+    // this.queryText = [];
+    // return queryString;
+    return queryText.join(' ');
+  }
+
+  this.select = (...selectors) => {
+      if (selectors.some(selector => !isString(selector))) {
+        throw new TypeError(">>> .select() => arguments should be strings");
+      }
+      queryText.push('SELECT');
+      if (selectors.length === 0) {
+        queryText.push('*');
+      } else {
+        queryText.push(selectors.join(', '));
+      }
+      console.log('this in select() =>', this);
+      return this;
+    };
+
+  this.from = tableName => {
+      if (!isString(tableName)) {
+        throw new TypeError(">>> .from() => argument should be a string");
+      }
+      queryText.push('FROM');
+      queryText.push(tableName);
+      return this;
+    };
+  
+    // ['equals', 'in', 'gt', 'gte', 'lt', 'lte', 'between', 'isNull', 'not'];
+    this.where = condition => {
+      if (whereUsed) {
+        queryText.push('AND', 'WHERE', condition);
+      } else {
+        queryText.push('WHERE', condition);
+      }
+      console.log('this in where => ', this);
+      return makeWhereObject(this);
+    };
+
+    this.orWhere = condition => {
+      if (whereUsed) {
+        queryText.push('OR', 'WHERE', condition);
+      }
+      return makeWhereObject(this);
+    }
+
+  
+    //====
+  }
+  return new Query();
 }
+// const q = query();
+// console.log('q => ', q);
+// console.log('q.select() => ', q.select().toString());
+// console.log(q.select('id').from('students').where('age').equals('25'));
+
