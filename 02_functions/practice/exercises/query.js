@@ -91,15 +91,16 @@ export default function query(tableName = null, options = {}) {
     let selectUsed = false;
     let fromUsed = false;
     let predefineTableName = false;
-    const handleSubQuery = subQuery => {
-      if (subQuery.__proto__.constructor.name === 'Query') {
-        let subQueryText = subQuery.toString().slice(0, -1).split(' ');
-        subQueryText.forEach(item => queryText.push(item));
-        return true;
+    const isQuery = query => query.__proto__.constructor.name === 'Query';
+    const handleSubQuery = (subQuery, callback = escapeNames) => {
+        let result;
+      if (isQuery(subQuery)) {
+        result = '(' + subQuery.toString().slice(0, -1) + ')';
       } else {
-        return false;
+        result = callback(subQuery);
       }
-    }
+      return result;
+    } 
     const isString = value => typeof value === 'string';
     const escape = (value, escapeChar) => {
       if (isString(value)) {
@@ -110,11 +111,11 @@ export default function query(tableName = null, options = {}) {
     }
     const escapeQuotes = value => escape(value, '\'');
     const escapeDoubleQuotes = value => escape(value, '\"');
-    const escapeNames = (value, callback = value => value) => {
+    const escapeNames = value => {
       if (options.escapeNames) {
         return escapeDoubleQuotes(value)
       } else {
-        return callback(value);
+        return escapeQuotes(value);
       }
     }
 
@@ -130,47 +131,44 @@ export default function query(tableName = null, options = {}) {
       } 
 
       this.equals = function (value) {
-        if (!handleSubQuery(value)) {
-          queryText.push('=', escapeNames(value, escapeQuotes));
-        }
+        queryText.push('=', handleSubQuery(value));
         return that;
       }
+
       this.in = function(values) {
-        if (!handleSubQuery(values)) {
-          let escapedValues = values.map(value => escapeNames(value, escapeQuotes))
+        let result = handleSubQuery(values, items => {
+          let escapedValues = items.map(value => escapeNames(value))
           let stringValues = `(${escapedValues.join(', ')})`;
-          if (switchNOT()) {
-            queryText.push('NOT', 'IN', stringValues);
-          } else {
-            queryText.push('IN', stringValues);
-          }
+          return stringValues;
+        });
+        if (switchNOT()) {
+          queryText.push('NOT', 'IN', result);
+        } else {
+          queryText.push('IN', result);
         }
         return that;
       }
+
       this.gt = function (value) {
-        if (!handleSubQuery(value)) {
-          queryText.push('>', escapeNames(value, escapeQuotes));
-        }
+        queryText.push('>', handleSubQuery(value));
         return that;
       }
+
       this.gte = function (value) {
-        if (!handleSubQuery(value)) {
-          queryText.push('>=', escapeNames(value, escapeQuotes));
-        }
+        queryText.push('>=', handleSubQuery(value));
         return that;
       }
+
       this.lt = function (value) {
-        if (!handleSubQuery(value)) {
-          queryText.push('<', escapeNames(value, escapeQuotes));
-        }
+        queryText.push('<', handleSubQuery(value));
         return that;
       }
+
       this.lte = function (value) {
-        if (!handleSubQuery(value)) {
-          queryText.push('<=', escapeNames(value, escapeQuotes));
-        }
+        queryText.push('<=', handleSubQuery(value));
         return that;
       }
+
       this.between = function (minValue, maxValue) {
         queryText.push('BETWEEN', minValue, 'AND', maxValue);
         return that;
@@ -215,7 +213,6 @@ export default function query(tableName = null, options = {}) {
         if (fromUsed && predefineTableName) {
           cache.forEach(item => queryText.push(item));
         }
-        console.log('.select() => cache: ', cache);
         return this;
       }
 
@@ -263,6 +260,25 @@ export default function query(tableName = null, options = {}) {
     }
   }
   return new Query(tableName, options);
+}
+
+
+const isString = value => typeof value === 'string';
+const escape = (value, escapeChar) => {
+  if (isString(value)) {
+    return `${escapeChar}${value}${escapeChar}`;
+  } else {
+    return value;
+  }
+}
+const escapeQuotes = value => escape(value, '\'');
+const escapeDoubleQuotes = value => escape(value, '\"');
+const escapeNames = value => {
+  if (options.escapeNames) {
+    return escapeDoubleQuotes(value)
+  } else {
+    return escapeQuotes(value);
+  }
 }
 
 
