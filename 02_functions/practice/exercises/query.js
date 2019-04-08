@@ -130,8 +130,9 @@ export default function query(tableName = null, options = {}) {
       } 
 
       this.equals = function (value) {
-        handleSubQuery(value);
-        queryText.push('=', escapeNames(value, escapeQuotes));
+        if (!handleSubQuery(value)) {
+          queryText.push('=', escapeNames(value, escapeQuotes));
+        }
         return that;
       }
       this.in = function(values) {
@@ -147,23 +148,27 @@ export default function query(tableName = null, options = {}) {
         return that;
       }
       this.gt = function (value) {
-        handleSubQuery(value);
-        queryText.push('>', escapeNames(value, escapeQuotes));
+        if (!handleSubQuery(value)) {
+          queryText.push('>', escapeNames(value, escapeQuotes));
+        }
         return that;
       }
       this.gte = function (value) {
-        handleSubQuery(value);
-        queryText.push('>=', escapeNames(value, escapeQuotes));
+        if (!handleSubQuery(value)) {
+          queryText.push('>=', escapeNames(value, escapeQuotes));
+        }
         return that;
       }
       this.lt = function (value) {
-        handleSubQuery(value);
-        queryText.push('<', escapeNames(value, escapeQuotes));
+        if (!handleSubQuery(value)) {
+          queryText.push('<', escapeNames(value, escapeQuotes));
+        }
         return that;
       }
       this.lte = function (value) {
-        handleSubQuery(value);
-        queryText.push('<=', escapeNames(value, escapeQuotes));
+        if (!handleSubQuery(value)) {
+          queryText.push('<=', escapeNames(value, escapeQuotes));
+        }
         return that;
       }
       this.between = function (minValue, maxValue) {
@@ -259,3 +264,6 @@ export default function query(tableName = null, options = {}) {
   }
   return new Query(tableName, options);
 }
+
+
+
