@@ -83,19 +83,38 @@ import { format } from "url";
  * 3. Реализовать функциональность создания INSERT и DELETE запросов. Написать для них тесты.
  */
 
-export default function query() {
+export default function query(tableName = null, options = {}) {
 
-  function Query() {
+  function Query(tableName, options) {
     let queryText = [];
     let whereUsed = false;
     let selectUsed = false;
     let fromUsed = false;
+    let predefineTableName = false;
+    const handleSubQuery = subQuery => {
+      if (subQuery.__proto__.constructor.name === 'Query') {
+        let subQueryText = subQuery.toString().slice(0, -1).split(' ');
+        subQueryText.forEach(item => queryText.push(item));
+        return true;
+      } else {
+        return false;
+      }
+    }
     const isString = value => typeof value === 'string';
-    const escapeQuotes = value => {
+    const escape = (value, escapeChar) => {
       if (isString(value)) {
-        return '\'' + value + '\'';
+        return `${escapeChar}${value}${escapeChar}`;
       } else {
         return value;
+      }
+    }
+    const escapeQuotes = value => escape(value, '\'');
+    const escapeDoubleQuotes = value => escape(value, '\"');
+    const escapeNames = (value, callback = value => value) => {
+      if (options.escapeNames) {
+        return escapeDoubleQuotes(value)
+      } else {
+        return callback(value);
       }
     }
 
@@ -111,33 +130,40 @@ export default function query() {
       } 
 
       this.equals = function (value) {
-        queryText.push('=', escapeQuotes(value));
+        handleSubQuery(value);
+        queryText.push('=', escapeNames(value, escapeQuotes));
         return that;
       }
       this.in = function(values) {
-        let escapedValues = values.map(value => escapeQuotes(value))
-        let stringValues = `(${escapedValues.join(', ')})`;
-        if (switchNOT()) {
-          queryText.push('NOT', 'IN', stringValues);
-        } else {
-          queryText.push('IN', stringValues);
+        if (!handleSubQuery(values)) {
+          let escapedValues = values.map(value => escapeNames(value, escapeQuotes))
+          let stringValues = `(${escapedValues.join(', ')})`;
+          if (switchNOT()) {
+            queryText.push('NOT', 'IN', stringValues);
+          } else {
+            queryText.push('IN', stringValues);
+          }
         }
         return that;
       }
       this.gt = function (value) {
-        queryText.push('>', escapeQuotes(value));
+        handleSubQuery(value);
+        queryText.push('>', escapeNames(value, escapeQuotes));
         return that;
       }
       this.gte = function (value) {
-        queryText.push('>=', escapeQuotes(value));
+        handleSubQuery(value);
+        queryText.push('>=', escapeNames(value, escapeQuotes));
         return that;
       }
       this.lt = function (value) {
-        queryText.push('<', escapeQuotes(value));
+        handleSubQuery(value);
+        queryText.push('<', escapeNames(value, escapeQuotes));
         return that;
       }
       this.lte = function (value) {
-        queryText.push('<=', escapeQuotes(value));
+        handleSubQuery(value);
+        queryText.push('<=', escapeNames(value, escapeQuotes));
         return that;
       }
       this.between = function (minValue, maxValue) {
@@ -165,6 +191,13 @@ export default function query() {
         if (selectors.some(selector => !isString(selector))) {
           throw new TypeError(">>> .select() => arguments should be strings");
         }
+        let cache = [];
+        if (fromUsed && predefineTableName) {
+          const queryTextLength = queryText.length;
+          for (let i = 0; i < queryTextLength; i++) {
+            cache.unshift(queryText.pop());
+          }
+        }
         if (!selectUsed) {
           queryText.push('SELECT');
           selectUsed = true;
@@ -174,6 +207,10 @@ export default function query() {
             queryText.push(selectors.join(', '));
           }
         }
+        if (fromUsed && predefineTableName) {
+          cache.forEach(item => queryText.push(item));
+        }
+        console.log('.select() => cache: ', cache);
         return this;
       }
 
@@ -214,6 +251,11 @@ export default function query() {
     this.toString = function () {
       return queryText.join(' ').concat(';');
     }
+
+    if (tableName !== null) {
+      predefineTableName = true;
+      this.from(tableName);
+    }
   }
-  return new Query();
+  return new Query(tableName, options);
 }
