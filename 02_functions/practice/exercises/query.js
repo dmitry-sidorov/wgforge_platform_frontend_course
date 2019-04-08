@@ -83,48 +83,61 @@ import { format } from "url";
  * 3. Реализовать функциональность создания INSERT и DELETE запросов. Написать для них тесты.
  */
 
-export default 
-function query() {
+export default function query() {
 
   function Query() {
     let queryText = [];
     let whereUsed = false;
     let selectUsed = false;
     let fromUsed = false;
-    const isString = str => typeof str === 'string';
+    const isString = value => typeof value === 'string';
+    const escapeQuotes = value => {
+      if (isString(value)) {
+        return '\'' + value + '\'';
+      } else {
+        return value;
+      }
+    }
 
     function WhereObject(that) {
+      const switchNOT = function() {
+        let notPosition = queryText.length - 2;
+        if (queryText[notPosition] === 'NOT') {
+          queryText.splice(notPosition, 1);
+          return true;
+        } else {
+          return false;
+        }
+      } 
+
       this.equals = function (value) {
-        queryText.push('=', value);
-        // console.log('this in equals => ', this);
-        // console.log('queryText in equals => ', queryText);
-        // console.log('that in equals => ', that);
+        queryText.push('=', escapeQuotes(value));
         return that;
       }
       this.in = function(values) {
-        // console.log('valuesArray: ', valuesArray.isArray());
-        // console.log('.in() => values.isArray():', values.isArray());
-
-        // if (values.isArray) {
-          // throw new TypeError('.in() argument should be an array');
-          queryText.push('IN', `(${values.join(', ')})`);
-          // }
+        let escapedValues = values.map(value => escapeQuotes(value))
+        let stringValues = `(${escapedValues.join(', ')})`;
+        if (switchNOT()) {
+          queryText.push('NOT', 'IN', stringValues);
+        } else {
+          queryText.push('IN', stringValues);
+        }
         return that;
       }
       this.gt = function (value) {
-        queryText.push('>', value);
+        queryText.push('>', escapeQuotes(value));
         return that;
       }
       this.gte = function (value) {
-        queryText.push('>=', value);
+        queryText.push('>=', escapeQuotes(value));
         return that;
       }
       this.lt = function (value) {
-        queryText.push('<', value);
+        queryText.push('<', escapeQuotes(value));
         return that;
       }
       this.lte = function (value) {
-        queryText.push('<=', value);
+        queryText.push('<=', escapeQuotes(value));
         return that;
       }
       this.between = function (minValue, maxValue) {
@@ -132,83 +145,75 @@ function query() {
         return that;
       }
       this.isNull = function () {
-        queryText.push('IS NULL');
+        if (switchNOT()) {
+          queryText.push('IS', 'NOT', 'NULL');
+        } else {
+          queryText.push('IS NULL');
+        }
         return that;
       }
-      this.not = function (value) {
+      this.not = function () {
         if (queryText[queryText.length - 1] === 'NOT') {
           throw new Error("not() can't be called multiple times in a row ");
         }
-        queryText.push('NOT');
-        return that;
+        queryText.splice(queryText.length - 1, 0, 'NOT');
+        return this;
       }
     }
 
-  this.select = function(...selectors) {
-      if (selectors.some(selector => !isString(selector))) {
-        throw new TypeError(">>> .select() => arguments should be strings");
-      }
-      if (!selectUsed) {
-        queryText.push('SELECT');
-        selectUsed = true;
-        if (selectors.length === 0) {
-          queryText.push('*');
-        } else {
-          queryText.push(selectors.join(', '));
+    this.select = function(...selectors) {
+        if (selectors.some(selector => !isString(selector))) {
+          throw new TypeError(">>> .select() => arguments should be strings");
         }
+        if (!selectUsed) {
+          queryText.push('SELECT');
+          selectUsed = true;
+          if (selectors.length === 0) {
+            queryText.push('*');
+          } else {
+            queryText.push(selectors.join(', '));
+          }
+        }
+        return this;
       }
-      // console.log('this in select() =>', this);
-      return this;
-    };
 
-  this.from = function(tableName) {
-      if (!isString(tableName)) {
-        throw new TypeError(">>> .from() => argument should be a string");
+    this.from = function(tableName) {
+        if (!isString(tableName)) {
+          throw new TypeError(">>> .from() => argument should be a string");
+        }
+        if (!fromUsed) {
+          queryText.push('FROM');
+          queryText.push(tableName);
+          fromUsed = true;
+        }
+        return this;
       }
-      if (!fromUsed) {
-        queryText.push('FROM');
-        queryText.push(tableName);
-        fromUsed = true;
-      }
-      return this;
-    };
   
-    // ['equals', 'in', 'gt', 'gte', 'lt', 'lte', 'between', 'isNull', 'not'];
     this.where = function(condition) {
       if (fromUsed) {
         if (whereUsed) {
-          queryText.push('AND', 'WHERE', condition);
+          queryText.push('AND', condition);
         } else {
           queryText.push('WHERE', condition);
+          whereUsed = true;
         }
-        // console.log('this in where => ', this);
       }
       return new WhereObject(this);
-    };
+    }
 
     this.orWhere = function(condition) {
       if (whereUsed) {
-        queryText.push('OR', 'WHERE', condition);
+        queryText.push('OR', condition);
+      } else {
+        queryText.push('WHERE', condition);
+        whereUsed = true;
       }
       return new WhereObject(this);
     }
 
     this.toString = function () {
-      // console.log('queryText in .toString() =>', queryText);
-      // let queryString = queryText.join(' ');
-      // console.log('queryString in .toString() =>', queryString);
-      // queryText = [];
-      // whereUsed = false;
-      // selectUsed = false;
-      // fromUsed = false;
       return queryText.join(' ').concat(';');
     }
-    //====
   }
   return new Query();
 }
-// const q = query();
-// console.log('q => ', q);
-// console.log('q.select() => ', q.select().toString());
-// console.log(q.select('id').from('students').where('age').equals('25'));
-
