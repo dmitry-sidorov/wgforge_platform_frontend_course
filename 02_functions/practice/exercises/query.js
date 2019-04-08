@@ -1,3 +1,5 @@
+import { format } from "url";
+
 /**
  * Задание: написать построитель SQL-запросов.
  * Данный модуль должен экспортировать функцию `query`, вызов которой должен возвращать новый экземпляр объекта query.
@@ -85,105 +87,122 @@ export default
 function query() {
 
   function Query() {
-    const queryText = [];
+    let queryText = [];
     let whereUsed = false;
+    let selectUsed = false;
+    let fromUsed = false;
     const isString = str => typeof str === 'string';
 
-    const makeWhereObject = (that) => {
-      return {
-        equals: function (value) {
-          queryText.push('=', value);
-          console.log('this in equals => ', this);
-          console.log('queryText in equals => ', queryText);
-          console.log('that in equals => ', that);
-          return that;
-        },
-        in: function (values) {
-          queryText.push('IN', `(${values.split(', ')})`);
-          return this;
-        },
-        gt: function (value) {
-          queryText.push('>', value);
-          return this;
-        },
-        gte: function (value) {
-          queryText.push('>=', value);
-          return this;
-        },
-        lt: function (value) {
-          queryText.push('<', value);
-          return this;
-        },
-        lte: function (value) {
-          queryText.push('<=', value);
-          return this;
-        },
-        between: function (minValue, maxValue) {
-          queryText.push('BETWEEN', minValue, 'AND', maxValue);
-          return this;
-        },
-        isNull: function () {
-          queryText.push('IS NULL');
-          return this;
-        },
-        not: function (value) {
-          if (queryText[queryText.length - 1] !== 'NOT') {
-            queryText.push('NOT');
-          }
-          return this;
+    function WhereObject(that) {
+      this.equals = function (value) {
+        queryText.push('=', value);
+        // console.log('this in equals => ', this);
+        // console.log('queryText in equals => ', queryText);
+        // console.log('that in equals => ', that);
+        return that;
+      }
+      this.in = function(values) {
+        // console.log('valuesArray: ', valuesArray.isArray());
+        // console.log('.in() => values.isArray():', values.isArray());
+
+        // if (values.isArray) {
+          // throw new TypeError('.in() argument should be an array');
+          queryText.push('IN', `(${values.join(', ')})`);
+          // }
+        return that;
+      }
+      this.gt = function (value) {
+        queryText.push('>', value);
+        return that;
+      }
+      this.gte = function (value) {
+        queryText.push('>=', value);
+        return that;
+      }
+      this.lt = function (value) {
+        queryText.push('<', value);
+        return that;
+      }
+      this.lte = function (value) {
+        queryText.push('<=', value);
+        return that;
+      }
+      this.between = function (minValue, maxValue) {
+        queryText.push('BETWEEN', minValue, 'AND', maxValue);
+        return that;
+      }
+      this.isNull = function () {
+        queryText.push('IS NULL');
+        return that;
+      }
+      this.not = function (value) {
+        if (queryText[queryText.length - 1] === 'NOT') {
+          throw new Error("not() can't be called multiple times in a row ");
         }
+        queryText.push('NOT');
+        return that;
       }
     }
 
-  this.toString = () => {
-    // let queryString = this.queryText.join(' ');
-    // this.queryText = [];
-    // return queryString;
-    return queryText.join(' ');
-  }
-
-  this.select = (...selectors) => {
+  this.select = function(...selectors) {
       if (selectors.some(selector => !isString(selector))) {
         throw new TypeError(">>> .select() => arguments should be strings");
       }
-      queryText.push('SELECT');
-      if (selectors.length === 0) {
-        queryText.push('*');
-      } else {
-        queryText.push(selectors.join(', '));
+      if (!selectUsed) {
+        queryText.push('SELECT');
+        selectUsed = true;
+        if (selectors.length === 0) {
+          queryText.push('*');
+        } else {
+          queryText.push(selectors.join(', '));
+        }
       }
-      console.log('this in select() =>', this);
+      // console.log('this in select() =>', this);
       return this;
     };
 
-  this.from = tableName => {
+  this.from = function(tableName) {
       if (!isString(tableName)) {
         throw new TypeError(">>> .from() => argument should be a string");
       }
-      queryText.push('FROM');
-      queryText.push(tableName);
+      if (!fromUsed) {
+        queryText.push('FROM');
+        queryText.push(tableName);
+        fromUsed = true;
+      }
       return this;
     };
   
     // ['equals', 'in', 'gt', 'gte', 'lt', 'lte', 'between', 'isNull', 'not'];
-    this.where = condition => {
-      if (whereUsed) {
-        queryText.push('AND', 'WHERE', condition);
-      } else {
-        queryText.push('WHERE', condition);
+    this.where = function(condition) {
+      if (fromUsed) {
+        if (whereUsed) {
+          queryText.push('AND', 'WHERE', condition);
+        } else {
+          queryText.push('WHERE', condition);
+        }
+        // console.log('this in where => ', this);
       }
-      console.log('this in where => ', this);
-      return makeWhereObject(this);
+      return new WhereObject(this);
     };
 
-    this.orWhere = condition => {
+    this.orWhere = function(condition) {
       if (whereUsed) {
         queryText.push('OR', 'WHERE', condition);
       }
-      return makeWhereObject(this);
+      return new WhereObject(this);
     }
 
-  
+    this.toString = function () {
+      // console.log('queryText in .toString() =>', queryText);
+      // let queryString = queryText.join(' ');
+      // console.log('queryString in .toString() =>', queryString);
+      // queryText = [];
+      // whereUsed = false;
+      // selectUsed = false;
+      // fromUsed = false;
+      return queryText.join(' ').concat(';');
+    }
     //====
   }
   return new Query();
