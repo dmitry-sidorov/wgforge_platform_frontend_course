@@ -124,5 +124,38 @@ test('query', t => {
     et.end();
   });
 
+  t.test('escape names', ot => {
+    // const escape = ;
+    ot.equal(
+      query(null, { escapeNames: true }).select('id')
+        .from('students')
+        .where('age')
+        .equals(24)
+        .toString(),
+    'ha-ha-ha'
+    );
+/*
+    t.throws(() => {
+      query()
+        .where()
+        .not()
+        .not();
+    }, "not() can't be called multiple times in a row");
+    */
+    ot.end();
+  });
+
+  t.test('handle subquery', st => {
+    const q1 = query('users');
+    const admins = q1.select('id').where('role').equals('admin');
+    const q2 = query('posts');
+    const posts = q2.select().where('author_id').in(admins);
+
+    st.equal(
+      posts.toString(), "SELECT * FROM posts WHERE author_id IN (SELECT id FROM users WHERE role = \'admin\');");
+
+    st.end();
+  });
+
   t.end();
 });
