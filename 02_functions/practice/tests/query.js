@@ -175,16 +175,9 @@ test('query', t => {
         .where('age')
         .equals(24)
         .toString(),
-    'ha-ha-ha'
+    "SELECT \"id\" FROM \"students\" WHERE \"age\" = 24;"
     );
-/*
-    t.throws(() => {
-      query()
-        .where()
-        .not()
-        .not();
-    }, "not() can't be called multiple times in a row");
-    */
+
     ot.end();
   });
 
