@@ -125,8 +125,6 @@ test('query', t => {
     et.end();
   });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   t.test('return new objects', tt => {
     const q1 = query();
     const q2 = query();
@@ -167,37 +165,7 @@ test('query', t => {
     tt.equal(unescapedQ.toString(), 'SELECT field FROM table;');
 
     tt.end();
-=======
-=======
->>>>>>> b616c32d7a05230f549164c3ed264293ec577938
-  t.test('escape names', ot => {
-    // const escape = ;
-    ot.equal(
-      query(null, { escapeNames: true }).select('id')
-        .from('students')
-        .where('age')
-        .equals(24)
-        .toString(),
-    "SELECT \"id\" FROM \"students\" WHERE \"age\" = 24;"
-    );
 
-    ot.end();
-  });
-
-  t.test('handle subquery', st => {
-    const q1 = query('users');
-    const admins = q1.select('id').where('role').equals('admin');
-    const q2 = query('posts');
-    const posts = q2.select().where('author_id').in(admins);
-
-    st.equal(
-      posts.toString(), "SELECT * FROM posts WHERE author_id IN (SELECT id FROM users WHERE role = \'admin\');");
-
-    st.end();
-<<<<<<< HEAD
->>>>>>> add 2 beta tests for extra tasks
-
->>>>>>> b616c32d7a05230f549164c3ed264293ec577938
   });
 
   t.end();
