@@ -83,21 +83,45 @@
 
 
 
-export default function query(tableName = null, options = {}) {
-
+export default function query(...params) {
+  let tableName; 
+  let options;
+  switch (params.length) {
+    case 1:
+      if (typeof params[0] === 'object') {
+        tableName = null;
+        options = params[0];
+      } else {
+        tableName = params[0];
+        options = {};
+      }
+      break;
+    case 0:
+      tableName = null;
+      options = {};
+      break;
+    default:
+      tableName = params[0];
+      options = params[1];
+      break;
+  }
+ 
   function Query(tableName, options) {
     let queryText = [];
     let whereUsed = false;
     let selectUsed = false;
     let fromUsed = false;
     let predefineTableName = false;
+    if (tableName !== null) {
+      predefineTableName = true;
+    }
     const isQuery = query => query.__proto__.constructor.name === 'Query';
     const handleSubQuery = (subQuery, callback = escapeNames) => {
         let result;
       if (isQuery(subQuery)) {
         result = '(' + subQuery.toString().slice(0, -1) + ')';
       } else {
-        result = callback(subQuery);
+        result = callback(subQuery, escapeQuotes);
       }
       return result;
     } 
@@ -111,11 +135,12 @@ export default function query(tableName = null, options = {}) {
     }
     const escapeQuotes = value => escape(value, '\'');
     const escapeDoubleQuotes = value => escape(value, '\"');
-    const escapeNames = value => {
+    const defaultCallback = value => value;
+    const escapeNames = (value, callback = defaultCallback) => {
       if (options.escapeNames) {
         return escapeDoubleQuotes(value)
       } else {
-        return escapeQuotes(value);
+        return callback(value);
       }
     }
 
@@ -137,7 +162,7 @@ export default function query(tableName = null, options = {}) {
 
       this.in = function(values) {
         let result = handleSubQuery(values, items => {
-          let escapedValues = items.map(value => escapeNames(value))
+          let escapedValues = items.map(value => escapeNames(value, escapeQuotes))
           let stringValues = `(${escapedValues.join(', ')})`;
           return stringValues;
         });
@@ -207,7 +232,7 @@ export default function query(tableName = null, options = {}) {
           if (selectors.length === 0) {
             queryText.push('*');
           } else {
-            queryText.push(selectors.join(', '));
+            queryText.push(selectors.map(selector => escapeNames(selector)).join(', '));
           }
         }
         if (fromUsed && predefineTableName) {
@@ -222,10 +247,14 @@ export default function query(tableName = null, options = {}) {
         }
         if (!fromUsed) {
           queryText.push('FROM');
-          queryText.push(tableName);
+          queryText.push(escapeNames(tableName));
           fromUsed = true;
         }
         return this;
+      }
+
+      if (predefineTableName) {
+        this.from(tableName);
       }
   
     this.where = function(condition) {
@@ -254,29 +283,8 @@ export default function query(tableName = null, options = {}) {
       return queryText.join(' ').concat(';');
     }
 
-    if (tableName !== null) {
-      predefineTableName = true;
-      this.from(tableName);
-    }
   }
   return new Query(tableName, options);
 }
 
 
-const isString = value => typeof value === 'string';
-const escape = (value, escapeChar) => {
-  if (isString(value)) {
-    return `${escapeChar}${value}${escapeChar}`;
-  } else {
-    return value;
-  }
-}
-const escapeQuotes = value => escape(value, '\'');
-const escapeDoubleQuotes = value => escape(value, '\"');
-const escapeNames = value => {
-  if (options.escapeNames) {
-    return escapeDoubleQuotes(value)
-  } else {
-    return escapeQuotes(value);
-  }
-}
