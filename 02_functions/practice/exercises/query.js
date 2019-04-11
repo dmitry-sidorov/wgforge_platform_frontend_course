@@ -143,12 +143,16 @@ export default function query(...params) {
         return callback(value);
       }
     }
+    const escapeNamesInArray = items => {
+      let escapedValues = items.map(value => escapeNames(value, escapeQuotes))
+      return `(${escapedValues.join(', ')})`;
+    }
 
     function WhereObject(that) {
       const switchNOT = function() {
-        let notPosition = queryText.length - 2;
+        let NOTPosition = queryText.length - 2;
         if (queryText[notPosition] === 'NOT') {
-          queryText.splice(notPosition, 1);
+          queryText.splice(NOTPosition, 1);
           return true;
         } else {
           return false;
@@ -161,11 +165,7 @@ export default function query(...params) {
       }
 
       this.in = function(values) {
-        let result = handleSubQuery(values, items => {
-          let escapedValues = items.map(value => escapeNames(value, escapeQuotes))
-          let stringValues = `(${escapedValues.join(', ')})`;
-          return stringValues;
-        });
+        let result = handleSubQuery(values, escapeNamesInArray);
         if (switchNOT()) {
           queryText.push('NOT', 'IN', result);
         } else {
@@ -207,10 +207,12 @@ export default function query(...params) {
         return that;
       }
       this.not = function () {
-        if (queryText[queryText.length - 1] === 'NOT') {
-          throw new Error("not() can't be called multiple times in a row ");
+        let lastIndex = queryText.length - 1;
+        let lastElement = queryText[lastIndex];
+        if (lastElement === 'NOT') {
+          throw new Error(">>> .not() can't be called multiple times in a row ");
         }
-        queryText.splice(queryText.length - 1, 0, 'NOT');
+        queryText.splice(lastIndex, 0, 'NOT');
         return this;
       }
     }
