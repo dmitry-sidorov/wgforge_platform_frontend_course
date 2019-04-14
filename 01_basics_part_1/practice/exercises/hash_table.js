@@ -20,7 +20,6 @@ export default class HashTable {
    */
 
   hashKey(key) {
-    return parseInt(key.split('').map(char => char.charCodeAt()).reduce((acc, num) => acc.toString() + num.toString()));
     // your code is here
   }
 
@@ -29,7 +28,7 @@ export default class HashTable {
    */
 
   get(key) {
-    return this.memory[this.hashKey(key)];
+    // your code here
   }
 
   /**
@@ -37,7 +36,6 @@ export default class HashTable {
    */
 
   set(key, value) {
-    this.memory[this.hashKey(key)] = value;
     // your code is here
   }
 
@@ -47,7 +45,6 @@ export default class HashTable {
    */
 
   remove(key) {
-    this.memory[this.hashKey(key)] = undefined;
     // your code is here
   }
 }

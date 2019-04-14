@@ -151,7 +151,7 @@ export default function query(...params) {
     function WhereObject(that) {
       const switchNOT = function() {
         let NOTPosition = queryText.length - 2;
-        if (queryText[notPosition] === 'NOT') {
+        if (queryText[NOTPosition] === 'NOT') {
           queryText.splice(NOTPosition, 1);
           return true;
         } else {

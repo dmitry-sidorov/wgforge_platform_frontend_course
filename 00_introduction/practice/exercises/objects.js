@@ -11,20 +11,7 @@ Example:
 }
 */
 export function collectByFirstLetter(...words) {
-  const obj = {};
-  words.forEach(word => {
-    let firstLetter = word.slice(0,1);
-    if (obj[firstLetter] == undefined) {
-      obj[firstLetter] = [];
-      obj[firstLetter].push(word);
-    } else {
-      obj[firstLetter].push(word);
-    }
-  });
-  for (let letter in obj) {
-    obj[letter].sort();
-  }
-  return obj;
+  // YOUR CODE HERE
 }
 
 /*
@@ -36,13 +23,7 @@ Example:
 ({name: 'John', age: 42}, 'name') yields {name: 'John'}
 */
 export function only(obj, ...keys) {
-  const received = {};
-  keys.forEach( key => {
-    if (obj[key] !== undefined) {
-      received[key] = obj[key];
-    }
-  });
-  return received;
+  // YOUR CODE HERE
 }
 
 /*
@@ -63,17 +44,7 @@ Example:
 '' yields {}
 */
 export function wordsCount(text) {
-  const obj = {};
-  if (text === '') return obj;
-  let words = text.split(' ').map(word => word.toLowerCase().replace(/\W/g, ''));
-  words.forEach(word => {
-    if (obj[word] === undefined) {
-      obj[word] = 1;
-    } else {
-      obj[word] += 1;
-    }
-  });
-  return obj;
+  // YOUR CODE HERE
 }
 
 /*
@@ -91,13 +62,5 @@ user.isWeakPassword() === false
 */
 
 export function createUser(login, password) {
-  return {
-    login: login,
-    password: password,
-    isWeakPassword: function () {
-      return (this.password === this.password.toLowerCase() ||
-         this.password === this.password.toUpperCase()) ||
-         false;
-    }
-  }
+  // YOUR CODE HERE
 }
