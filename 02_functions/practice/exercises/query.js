@@ -81,6 +81,212 @@
  * 3. Реализовать функциональность создания INSERT и DELETE запросов. Написать для них тесты.
  */
 
-export default function query() {
-  // ¯\_(ツ)_/¯
+
+
+export default function query(...params) {
+  let tableName; 
+  let options;
+  switch (params.length) {
+    case 1:
+      if (typeof params[0] === 'object') {
+        tableName = null;
+        options = params[0];
+      } else {
+        tableName = params[0];
+        options = {};
+      }
+      break;
+    case 0:
+      tableName = null;
+      options = {};
+      break;
+    default:
+      tableName = params[0];
+      options = params[1];
+      break;
+  }
+ 
+  function Query(tableName, options) {
+    let queryText = [];
+    let whereUsed = false;
+    let selectUsed = false;
+    let fromUsed = false;
+    let predefineTableName = false;
+    if (tableName !== null) {
+      predefineTableName = true;
+    }
+    const isQuery = query => query.__proto__.constructor.name === 'Query';
+    const handleSubQuery = (subQuery, callback = escapeNames) => {
+        let result;
+      if (isQuery(subQuery)) {
+        result = '(' + subQuery.toString().slice(0, -1) + ')';
+      } else {
+        result = callback(subQuery, escapeQuotes);
+      }
+      return result;
+    } 
+    const isString = value => typeof value === 'string';
+    const escape = (value, escapeChar) => {
+      if (isString(value)) {
+        return `${escapeChar}${value}${escapeChar}`;
+      } else {
+        return value;
+      }
+    }
+    const escapeQuotes = value => escape(value, '\'');
+    const escapeDoubleQuotes = value => escape(value, '\"');
+    const defaultCallback = value => value;
+    const escapeNames = (value, callback = defaultCallback) => {
+      if (options.escapeNames) {
+        return escapeDoubleQuotes(value)
+      } else {
+        return callback(value);
+      }
+    }
+    const escapeNamesInArray = items => {
+      let escapedValues = items.map(value => escapeNames(value, escapeQuotes))
+      return `(${escapedValues.join(', ')})`;
+    }
+
+    function WhereObject(that) {
+      const switchNOT = function() {
+        let NOTPosition = queryText.length - 2;
+        if (queryText[NOTPosition] === 'NOT') {
+          queryText.splice(NOTPosition, 1);
+          return true;
+        } else {
+          return false;
+        }
+      } 
+
+      this.equals = function (value) {
+        queryText.push('=', handleSubQuery(value));
+        return that;
+      }
+
+      this.in = function(values) {
+        let result = handleSubQuery(values, escapeNamesInArray);
+        if (switchNOT()) {
+          queryText.push('NOT', 'IN', result);
+        } else {
+          queryText.push('IN', result);
+        }
+        return that;
+      }
+
+      this.gt = function (value) {
+        queryText.push('>', handleSubQuery(value));
+        return that;
+      }
+
+      this.gte = function (value) {
+        queryText.push('>=', handleSubQuery(value));
+        return that;
+      }
+
+      this.lt = function (value) {
+        queryText.push('<', handleSubQuery(value));
+        return that;
+      }
+
+      this.lte = function (value) {
+        queryText.push('<=', handleSubQuery(value));
+        return that;
+      }
+
+      this.between = function (minValue, maxValue) {
+        queryText.push('BETWEEN', minValue, 'AND', maxValue);
+        return that;
+      }
+      this.isNull = function () {
+        if (switchNOT()) {
+          queryText.push('IS', 'NOT', 'NULL');
+        } else {
+          queryText.push('IS NULL');
+        }
+        return that;
+      }
+      this.not = function () {
+        let lastIndex = queryText.length - 1;
+        let lastElement = queryText[lastIndex];
+        if (lastElement === 'NOT') {
+          throw new Error(">>> .not() can't be called multiple times in a row ");
+        }
+        queryText.splice(lastIndex, 0, 'NOT');
+        return this;
+      }
+    }
+
+    this.select = function(...selectors) {
+        if (selectors.some(selector => !isString(selector))) {
+          throw new TypeError(">>> .select() => arguments should be strings");
+        }
+        let cache = [];
+        if (fromUsed && predefineTableName) {
+          const queryTextLength = queryText.length;
+          for (let i = 0; i < queryTextLength; i++) {
+            cache.unshift(queryText.pop());
+          }
+        }
+        if (!selectUsed) {
+          queryText.push('SELECT');
+          selectUsed = true;
+          if (selectors.length === 0) {
+            queryText.push('*');
+          } else {
+            queryText.push(selectors.map(selector => escapeNames(selector)).join(', '));
+          }
+        }
+        if (fromUsed && predefineTableName) {
+          cache.forEach(item => queryText.push(item));
+        }
+        return this;
+      }
+
+    this.from = function(tableName) {
+        if (!isString(tableName)) {
+          throw new TypeError(">>> .from() => argument should be a string");
+        }
+        if (!fromUsed) {
+          queryText.push('FROM');
+          queryText.push(escapeNames(tableName));
+          fromUsed = true;
+        }
+        return this;
+      }
+
+      if (predefineTableName) {
+        this.from(tableName);
+      }
+  
+    this.where = function(condition) {
+      if (fromUsed) {
+        if (whereUsed) {
+          queryText.push('AND', condition);
+        } else {
+          queryText.push('WHERE', condition);
+          whereUsed = true;
+        }
+      }
+      return new WhereObject(this);
+    }
+
+    this.orWhere = function(condition) {
+      if (whereUsed) {
+        queryText.push('OR', condition);
+      } else {
+        queryText.push('WHERE', condition);
+        whereUsed = true;
+      }
+      return new WhereObject(this);
+    }
+
+    this.toString = function () {
+      return queryText.join(' ').concat(';');
+    }
+
+  }
+  return new Query(tableName, options);
 }
+
+
