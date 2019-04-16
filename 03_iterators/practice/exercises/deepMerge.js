@@ -86,26 +86,34 @@ function addIterator(sourceObject) {
 
 export default
 function deepMerge(destinationObject, sourceObject) {
-  const resultObject = {};
+  
   const isObject = obj => typeof obj === 'object';
   const isUndefined = obj => typeof obj === 'undefined';
   const isPrimitive = obj => !isObject(obj) && !isUndefined(obj);
+  const isArray = obj => obj.__proto__.constructor.name.toLowerCase() === 'array';
   // const compareStrings = (a, b) => a.localeCompare(b);
-  Array.prototype.unique = function () {
-    const uniqValues = [];
-    this.forEach(value => {
-      if (!uniqValues.includes(value)) {
-        uniqValues.push(value);
+  const getUniques = function (values) {
+    const uniqueValues = [];
+    values.forEach(value => {
+      if (!uniqueValues.includes(value)) {
+        uniqueValues.push(value);
       }
     });
-    return uniqValues;
+    return uniqueValues;
   }
-
+  let resultObject;
+  if (isObject(destinationObject) && isObject(sourceObject)) {
+    resultObject = {};
+  }
+  if (isArray(destinationObject) && isArray(sourceObject)) {
+    resultObject = [];
+  }
   const destinationKeys = Object.keys(destinationObject);
   const sourceKeys = Object.keys(sourceObject);
-  const resultKeys = destinationKeys.concat(sourceKeys).unique();
+  const resultKeys = getUniques(destinationKeys.concat(sourceKeys));
   
   const mergeWithObject = (a, b) => {
+    console.log('mergeWithObject => a: ', a, ' b: ', b);
     if (isObject(a) && !isObject(b)) {
       return cloneDeep(a);
     }
@@ -115,6 +123,7 @@ function deepMerge(destinationObject, sourceObject) {
   }
 
   const mergeWithPrimitive = (destination, source) => {
+    console.log('mergeWithPrimitive => dest: ', a, ' src: ', b);
     if (isPrimitive(destination) && isPrimitive(source)) {
       return source;
     } else {
@@ -151,23 +160,35 @@ function deepMerge(destinationObject, sourceObject) {
   return resultObject;
 }
 
-// //tests
-// const destinationObject = {
-//   students: [{ name: 'Unit 1' }, { name: 'Unit 2'}],
-//   label: 'backend',
-//   count: 1
-// };
+const a = [
+  {name: 'Alex'},
+  {age: 15}
+];
 
-// const sourceObject = {
-//   label: 'frontend',
-//   students: [{ surname: 'Forge 1' }, { surname: 'Forge 2'}]
-// };
+const b = [
+  {surname: 'Ivanov'},
+  {gender: 'male'}
+];
 
-// const expectedResult = {
-//   students: [{ name: 'Unit 1', surname: 'Forge 1' }, { name: 'Unit 2', surname: 'Forge 2' }],
-//   label: 'frontend',
-//   count: 1
-// }
+// console.log(cloneDeep(b));
+console.log('typeof a: ', typeof a);
+console.log('typeof a[0]: ', typeof a[0]);
+console.log(deepMerge(a, b));
 
-// console.log(deepMerge(destinationObject, sourceObject));
+const c = {
+  name: ['Alex'],
+  age: [15]
+}
 
+const d = {
+  surname: ['Ivanov'],
+  gender: ['male']
+}
+
+// console.log(deepMerge(c, d));
+
+const e = ['Sam', 'Deen'];
+const f = [15, 'brother'];
+
+// console.log(deepMerge(e, f));
+// console.log(cloneDeep(d));
