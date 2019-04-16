@@ -115,7 +115,7 @@ export default function query(...params) {
     if (tableName !== null) {
       predefineTableName = true;
     }
-    const isQuery = query => query.__proto__.constructor.name === 'Query';
+    const isQuery = obj => obj instanceof Query;
     const handleSubQuery = (subQuery, callback = escapeNames) => {
         let result;
       if (isQuery(subQuery)) {
