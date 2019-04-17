@@ -83,27 +83,12 @@
 
 
 
-export default function query(...params) {
-  let tableName; 
-  let options;
-  switch (params.length) {
-    case 1:
-      if (typeof params[0] === 'object') {
-        tableName = null;
-        options = params[0];
-      } else {
-        tableName = params[0];
-        options = {};
-      }
-      break;
-    case 0:
-      tableName = null;
-      options = {};
-      break;
-    default:
-      tableName = params[0];
-      options = params[1];
-      break;
+export default function query(tableName = null, options = {}) {
+  const isObject = value => typeof value === 'object';
+  const isNull = value => value === null;
+  if (isObject(tableName) && !isNull(tableName)) {
+    options = tableName;
+    tableName = null;
   }
  
   function Query(tableName, options) {
@@ -125,7 +110,6 @@ export default function query(...params) {
       }
       return result;
     } 
-    const isString = value => typeof value === 'string';
     const escape = (value, escapeChar) => {
       if (isString(value)) {
         return `${escapeChar}${value}${escapeChar}`;
@@ -133,6 +117,7 @@ export default function query(...params) {
         return value;
       }
     }
+    const isString = value => typeof value === 'string';
     const escapeQuotes = value => escape(value, '\'');
     const escapeDoubleQuotes = value => escape(value, '\"');
     const defaultCallback = value => value;
