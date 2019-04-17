@@ -133,7 +133,7 @@ export default function query(tableName = null, options = {}) {
       return `(${escapedValues.join(', ')})`;
     }
 
-    function WhereObject(that) {
+    function WhereObject(context) {
       const switchNOT = function() {
         let NOTPosition = queryText.length - 2;
         if (queryText[NOTPosition] === 'NOT') {
@@ -146,7 +146,7 @@ export default function query(tableName = null, options = {}) {
 
       this.equals = function (value) {
         queryText.push('=', handleSubQuery(value));
-        return that;
+        return context;
       }
 
       this.in = function(values) {
@@ -156,32 +156,32 @@ export default function query(tableName = null, options = {}) {
         } else {
           queryText.push('IN', result);
         }
-        return that;
+        return context;
       }
 
       this.gt = function (value) {
         queryText.push('>', handleSubQuery(value));
-        return that;
+        return context;
       }
 
       this.gte = function (value) {
         queryText.push('>=', handleSubQuery(value));
-        return that;
+        return context;
       }
 
       this.lt = function (value) {
         queryText.push('<', handleSubQuery(value));
-        return that;
+        return context;
       }
 
       this.lte = function (value) {
         queryText.push('<=', handleSubQuery(value));
-        return that;
+        return context;
       }
 
       this.between = function (minValue, maxValue) {
         queryText.push('BETWEEN', minValue, 'AND', maxValue);
-        return that;
+        return context;
       }
       this.isNull = function () {
         if (switchNOT()) {
@@ -189,7 +189,7 @@ export default function query(tableName = null, options = {}) {
         } else {
           queryText.push('IS NULL');
         }
-        return that;
+        return context;
       }
       this.not = function () {
         let lastIndex = queryText.length - 1;
