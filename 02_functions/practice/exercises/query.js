@@ -93,9 +93,9 @@ export default function query(tableName = null, options = {}) {
  
   function Query(tableName, options) {
     let queryText = [];
-    let whereUsed = false;
-    let selectUsed = false;
-    let fromUsed = false;
+    let hasWhereOperator = false;
+    let hasSelectOperator = false;
+    let hasFromOperator = false;
     let predefineTableName = false;
     if (tableName !== null) {
       predefineTableName = true;
@@ -207,22 +207,22 @@ export default function query(tableName = null, options = {}) {
           throw new TypeError(">>> .select() => arguments should be strings");
         }
         let cache = [];
-        if (fromUsed && predefineTableName) {
+        if (hasFromOperator && predefineTableName) {
           const queryTextLength = queryText.length;
           for (let i = 0; i < queryTextLength; i++) {
             cache.unshift(queryText.pop());
           }
         }
-        if (!selectUsed) {
+        if (!hasSelectOperator) {
           queryText.push('SELECT');
-          selectUsed = true;
+          hasSelectOperator = true;
           if (selectors.length === 0) {
             queryText.push('*');
           } else {
             queryText.push(selectors.map(selector => escapeNames(selector)).join(', '));
           }
         }
-        if (fromUsed && predefineTableName) {
+        if (hasFromOperator && predefineTableName) {
           cache.forEach(item => queryText.push(item));
         }
         return this;
@@ -232,10 +232,10 @@ export default function query(tableName = null, options = {}) {
         if (!isString(tableName)) {
           throw new TypeError(">>> .from() => argument should be a string");
         }
-        if (!fromUsed) {
+        if (!hasFromOperator) {
           queryText.push('FROM');
           queryText.push(escapeNames(tableName));
-          fromUsed = true;
+          hasFromOperator = true;
         }
         return this;
       }
@@ -245,23 +245,23 @@ export default function query(tableName = null, options = {}) {
       }
   
     this.where = function(condition) {
-      if (fromUsed) {
-        if (whereUsed) {
+      if (hasFromOperator) {
+        if (hasWhereOperator) {
           queryText.push('AND', condition);
         } else {
           queryText.push('WHERE', condition);
-          whereUsed = true;
+          hasWhereOperator = true;
         }
       }
       return new WhereObject(this);
     }
 
     this.orWhere = function(condition) {
-      if (whereUsed) {
+      if (hasWhereOperator) {
         queryText.push('OR', condition);
       } else {
         queryText.push('WHERE', condition);
-        whereUsed = true;
+        hasWhereOperator = true;
       }
       return new WhereObject(this);
     }
