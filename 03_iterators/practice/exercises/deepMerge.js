@@ -33,7 +33,6 @@ export default function deepMerge(destinationObject, sourceObject) {
   const isObject = obj => typeof obj === 'object';
   const isUndefined = obj => typeof obj === 'undefined';
   const isPrimitive = obj => !isObject(obj) && !isUndefined(obj);
-  const isArray = obj => obj.__proto__.constructor.name.toLowerCase() === 'array';
   const getUniques = function (values) {
     const uniqueValues = [];
     values.forEach(value => {
@@ -47,7 +46,7 @@ export default function deepMerge(destinationObject, sourceObject) {
   if (isObject(destinationObject) && isObject(sourceObject)) {
     resultObject = {};
   }
-  if (isArray(destinationObject) && isArray(sourceObject)) {
+  if (Array.isArray(destinationObject) && Array.isArray(sourceObject)) {
     resultObject = [];
   }
   const destinationKeys = Object.keys(destinationObject);

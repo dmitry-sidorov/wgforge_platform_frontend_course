@@ -3,12 +3,11 @@
  */
 export default function cloneDeep(sourceObject) {
   const isObject = obj => obj.__proto__.constructor.name.toLowerCase() === 'object';
-  const isArray = obj => obj.__proto__.constructor.name.toLowerCase() === 'array';
   let clonedObject;
   if (isObject(sourceObject)) {
     clonedObject = {};
   } else {
-    if (isArray(sourceObject)) {
+    if (Array.isArray(sourceObject)) {
       clonedObject = [];
     } else {
       return sourceObject;
