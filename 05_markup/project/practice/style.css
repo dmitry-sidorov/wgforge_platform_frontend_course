@@ -1,3 +1,13 @@
+@font-face {
+font-family: 'font54aed71f7ac31ebb9b90bc5d41ba8837';
+    
+    src:    url('https://nomail.com.ua/files/eot/54aed71f7ac31ebb9b90bc5d41ba8837.eot?#iefix') format('embedded-opentype'),
+            url('https://nomail.com.ua/files/woff/54aed71f7ac31ebb9b90bc5d41ba8837.woff') format('woff'),
+            url('https://nomail.com.ua/files/woff2/54aed71f7ac31ebb9b90bc5d41ba8837.woff2') format('woff2');
+}
+
+@font-face { font-family: 'WarHeliosCondCBold';  src: local('WarHeliosCondCBold'), url('https://nomail.com.ua/files/woff/54aed71f7ac31ebb9b90bc5d41ba8837.woff') format('woff'); }
+
 body {
   margin: 0;
   position: relative;
@@ -31,7 +41,25 @@ body {
   display: none;
 }
 .article {
-  display: none;
+  display: none;  
+}
+.title {
+  text-align: center;
+  color: #fff;
+  font: 10px/normal 'WarHeliosCondCBold';
+  position: relative;
+  text-transform: uppercase;
+}
+.section_game .title {
+  bottom: 8px;
+}
+.section_tanks .title {
+  bottom: 7px;
+}
+.title-primary {
+  display: block;
+  font-size: 24px;
+  letter-spacing: 4px;
 }
 .section__open .article {
   display: block;
@@ -62,20 +90,68 @@ body {
   background: url("../img/grass.webp"),
               url("../img/grass.webp") repeat 150px 200px,
               url("../img/grass.webp") repeat 50px 100px;
+              
   position: absolute;
   top: 0;
   right: 0;
   bottom: 67%;
   left: 0;
+  mask: url("../img/mask_mob.gif") bottom left repeat-x;
 
 }
-
-.bg-tanks {
-  background: url('../project/img/grass.webp') repeat 0;
+.bg_tanks {
+  background: 
+              url("../img/sand.webp") repeat 50px 100px,
+              url("../img/sand.webp") repeat 150px 200px,
+              url("../img/sand.webp");
   position: absolute;
-  top: 0;
+  top: 33%;
+  right: 0;
+  bottom: 33%;
+  left: 0;
+}
+.bg_power {
+  background: 
+              url("../img/dust.webp") repeat 150px 200px,
+              url("../img/dust.webp"),
+              url("../img/dust.webp") repeat 50px 100px;
+  position: absolute;
+  top: 67%;
   right: 0;
   bottom: 0;
   left: 0;
+  mask: url("../img/mask_mob.gif") top left repeat-x;
 }
 
+.main {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  padding-top: 60px;
+  position: relative;
+  min-height: 100vh;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.section-header_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.nav-mobile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
