@@ -1,0 +1,47 @@
+.header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+@media all and (min-width: 760px) {
+  .header {
+    background: rgba(0, 0, 0, 0.5);
+    
+  }
+}
+.page-nav {
+  display: none;
+}
+.article {
+  display: none;
+}
+.footer {
+  display: none;
+}
+.invisible {
+  color: transparent;
+  /* font:  */
+}
+.intro {
+  display: none;
+}
+.bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.bg-tanks {
+  background: url('../project/img/grass.webp') repeat 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
