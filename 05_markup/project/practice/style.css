@@ -25,7 +25,11 @@ body {
 @media all and (min-width: 760px) {
   .header {
     background: rgba(0, 0, 0, 0.5);
-    
+  }
+}
+@media all and (max-width: 760px) {
+  .section-header .intro {
+    display: none;
   }
 }
 .display-none {
@@ -74,6 +78,7 @@ body {
   .bg {
     top: 0;
   }
+
 }
 .bg_game {
   background: url("../img/grass.webp"),
@@ -137,6 +142,13 @@ body {
   width: 100%;
   height: 100%;
 }
+/* .nav-mobile ul {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+} */
 .nav-mobile {
   width: 100%;
   height: 100%;
@@ -144,19 +156,38 @@ body {
   justify-content: space-around;
   align-items: center;
 }
-.bg-about-game {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+.bg-game__open {
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .bg-game_wot {
-  background: url("../img/s1-tanks_res.webp");
-  grid-column-start: 1;
-  grid-column-end: 2;
-  /* height: 33%; */
-  /* position: absolute; */
-  /* top: 0; */
-  /* right: 0; */
-  /* bottom: 67%; */
-  /* left: 0; */
-  /* background-color: green; */
+  background: url('../img/grass.webp'),
+              url('../img/grass.webp') repeat 150px 200px,
+              url('../img/grass.webp') repeat 50px 100px;
+  /* grid-column-start: 0; */
+  /* grid-column-end: 1;  */
+  height: 600px;
+}
+.bg-game_battles {
+  background: url('../img/grass.webp');
+  /* grid-column-start: 1; */
+  /* grid-column-end: 2;  */
+  height: 600px;
+}
+.bg-game_modes {
+  background: url('../img/s3-sky.webp');
+  /* grid-column-start: 2; */
+  /* grid-column-end: 3;  */
+  height: 600px;
+}
+.article {
+  font: 10px/normal 'WarHeliosCondCBold';
+  color: #fff;
+}
+.article h3{
+  font-size: 24px;
+  text-transform: uppercase;
 }
