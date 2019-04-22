@@ -28,20 +28,8 @@ body {
     
   }
 }
-.main-nav {
+.display-none {
   display: none;
-}
-.search {
-  display: none;
-}
-.main-button {
-  display: none;
-}
-.page-nav {
-  display: none;
-}
-.article {
-  display: none;  
 }
 .title {
   text-align: center;
@@ -72,7 +60,8 @@ body {
   font: 0/0 a;
 }
 .intro {
-  display: none;
+  font: 10px/normal 'WarHeliosCondCBold';
+  color: #fff;
 }
 .bg {
   position: absolute;
@@ -154,4 +143,20 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
+.bg-about-game {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.bg-game_wot {
+  background: url("../img/s1-tanks_res.webp");
+  grid-column-start: 1;
+  grid-column-end: 2;
+  /* height: 33%; */
+  /* position: absolute; */
+  /* top: 0; */
+  /* right: 0; */
+  /* bottom: 67%; */
+  /* left: 0; */
+  /* background-color: green; */
 }
