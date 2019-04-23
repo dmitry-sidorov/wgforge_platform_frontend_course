@@ -84,15 +84,12 @@ body {
   background: url("../img/grass.webp"),
               url("../img/grass.webp") repeat 150px 200px,
               url("../img/grass.webp") repeat 50px 100px;
-              
   position: absolute;
   top: 0;
   right: 0;
   bottom: 67%;
   left: 0; 
-  height: 100%;
-  width: 100%;
-  mask: url("../img/mask_mob.gif") bottom left repeat-x;
+  mask: url("../img/mask_mob.gif") repeat-x bottom;
 
 }
 .bg_tanks {
