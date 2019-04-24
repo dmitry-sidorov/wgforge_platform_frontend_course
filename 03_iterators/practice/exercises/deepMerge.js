@@ -26,6 +26,64 @@
  * //       count: 1
  * //    }
  */
+
+import cloneDeep from './cloneDeep';
+
 export default function deepMerge(destinationObject, sourceObject) {
-  // ¯\_(ツ)_/¯
+  const isObject = obj => typeof obj === 'object';
+  const isUndefined = obj => typeof obj === 'undefined';
+  const isPrimitive = obj => !isObject(obj) && !isUndefined(obj);
+  const getUniques = function (values) {
+    const uniqueValues = [];
+    values.forEach(value => {
+      if (!uniqueValues.includes(value)) {
+        uniqueValues.push(value);
+      }
+    });
+    return uniqueValues;
+  }
+  let resultObject;
+  if (isObject(destinationObject) && isObject(sourceObject)) {
+    resultObject = {};
+  }
+  if (Array.isArray(destinationObject) && Array.isArray(sourceObject)) {
+    resultObject = [];
+  }
+  const destinationKeys = Object.keys(destinationObject);
+  const sourceKeys = Object.keys(sourceObject);
+  const resultKeys = getUniques(destinationKeys.concat(sourceKeys));
+  const mergeWithObject = (a, b) => {
+    if (isObject(a) && !isObject(b)) {
+      return cloneDeep(a);
+    }
+    if (!isObject(a) && isObject(b)) {
+      return cloneDeep(b);
+    }
+  }
+  const mergeWithPrimitive = (destination, source) => {
+    if (isPrimitive(destination) && isPrimitive(source)) {
+      return source;
+    } else {
+      if (isPrimitive(destination)) {
+        return destination;
+      }
+      if (isPrimitive(source)) {
+        return source;
+      }
+    }
+  }
+  resultKeys.forEach( key => {
+    let destination = destinationObject[key];
+    let source = sourceObject[key];
+    if (isObject(destination) && isObject(source)) {
+      resultObject[key] = deepMerge(destination, source);
+    } else {
+      if (isObject(destination) || isObject(source)) {
+        resultObject[key] = mergeWithObject(destination, source);
+      } else {
+        resultObject[key] = mergeWithPrimitive(destination, source);
+      }
+    }
+  });
+  return resultObject;
 }
