@@ -1,0 +1,192 @@
+@font-face {
+font-family: 'font54aed71f7ac31ebb9b90bc5d41ba8837';
+    
+    src:    url('https://nomail.com.ua/files/eot/54aed71f7ac31ebb9b90bc5d41ba8837.eot?#iefix') format('embedded-opentype'),
+            url('https://nomail.com.ua/files/woff/54aed71f7ac31ebb9b90bc5d41ba8837.woff') format('woff'),
+            url('https://nomail.com.ua/files/woff2/54aed71f7ac31ebb9b90bc5d41ba8837.woff2') format('woff2');
+}
+
+@font-face { font-family: 'WarHeliosCondCBold';  src: local('WarHeliosCondCBold'), url('https://nomail.com.ua/files/woff/54aed71f7ac31ebb9b90bc5d41ba8837.woff') format('woff'); }
+
+body {
+  margin: 0;
+  position: relative;
+}
+.header {
+  height: 60px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 1);
+  z-index: 1;
+}
+@media all and (min-width: 760px) {
+  .header {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+@media all and (max-width: 760px) {
+  .section-header .intro {
+    display: none;
+  }
+}
+.display-none {
+  display: none;
+}
+.title {
+  text-align: center;
+  color: #fff;
+  font: 10px/normal 'WarHeliosCondCBold';
+  position: relative;
+  text-transform: uppercase;
+}
+.section_game .title {
+  bottom: 8px;
+}
+.section_tanks .title {
+  bottom: 7px;
+}
+.title-primary {
+  display: block;
+  font-size: 24px;
+  letter-spacing: 4px;
+}
+.section__open .article {
+  display: block;
+}
+.footer {
+  display: none;
+}
+.invisible {
+  color: transparent;
+  font: 0/0 a;
+}
+.intro {
+  font: 10px/normal 'WarHeliosCondCBold';
+  color: #fff;
+}
+.bg {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 0; 
+}
+@media all and (min-width: 760px) {
+  .bg {
+    top: 0;
+  }
+
+}
+.bg_game {
+  background: url("../img/grass.webp"),
+              url("../img/grass.webp") repeat 150px 200px,
+              url("../img/grass.webp") repeat 50px 100px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 67%;
+  left: 0; 
+  mask: url("../img/mask_mob.gif") repeat-x bottom;
+
+}
+.bg_tanks {
+  background: 
+              url("../img/sand.webp") repeat 50px 100px,
+              url("../img/sand.webp") repeat 150px 200px,
+              url("../img/sand.webp");
+  position: absolute;
+  top: 33%;
+  right: 0;
+  bottom: 33%;
+  left: 0;
+}
+.bg_power {
+  background: 
+              url("../img/dust.webp") repeat 150px 200px,
+              url("../img/dust.webp"),
+              url("../img/dust.webp") repeat 50px 100px;
+  position: absolute;
+  top: 67%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  mask: url("../img/mask_mob.gif") top left repeat-x;
+}
+
+.main {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  padding-top: 60px;
+  position: relative;
+  min-height: 100vh;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.section-header_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+/* .nav-mobile ul {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+} */
+.nav-mobile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.bg-game__open {
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bg-game_wot {
+  background: url('../img/grass.webp'),
+              url('../img/grass.webp') repeat 150px 200px,
+              url('../img/grass.webp') repeat 50px 100px;
+  /* grid-column-start: 0; */
+  /* grid-column-end: 1;  */
+  height: 600px;
+}
+.bg-game_battles {
+  background: url('../img/grass.webp');
+  /* grid-column-start: 1; */
+  /* grid-column-end: 2;  */
+  height: 600px;
+}
+.bg-game_modes {
+  background: url('../img/s3-sky.webp');
+  /* grid-column-start: 2; */
+  /* grid-column-end: 3;  */
+  height: 600px;
+}
+.article {
+  font: 10px/normal 'WarHeliosCondCBold';
+  color: #fff;
+}
+.article h3{
+  font-size: 24px;
+  text-transform: uppercase;
+}
